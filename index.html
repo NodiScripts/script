@@ -1,89 +1,265 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Access Page</title>
-  <style>
-    :root {
-      color-scheme: light dark;
-    }
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding-top: 100px;
-      background-color: #f5f5f5;
-      margin: 0;
-    }
-    h1 {
-      margin-bottom: 24px;
-    }
-    button {
-      padding: 12px 24px;
-      font-size: 1.1rem;
-      background-color: #007bff;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: opacity .2s ease;
-    }
-    button[disabled] {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-    .msg {
-      margin-top: 16px;
-      font-size: 0.95rem;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Validator</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            transform: translateY(0);
+            transition: all 0.3s ease;
+        }
+        
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 28px;
+            font-weight: 300;
+        }
+        
+        .email-input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 50px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+        
+        .email-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.2);
+        }
+        
+        .email-input.valid {
+            border-color: #4CAF50;
+            background-color: #f8fff8;
+        }
+        
+        .email-input.invalid {
+            border-color: #f44336;
+            background-color: #fff8f8;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        
+        .submit-btn.enabled {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .submit-btn.enabled:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .submit-btn.enabled:active {
+            transform: translateY(0);
+        }
+        
+        .error-message {
+            color: #f44336;
+            font-size: 14px;
+            margin-top: 10px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .error-message.show {
+            opacity: 1;
+        }
+        
+        .loading {
+            display: none;
+            color: #667eea;
+            margin-top: 10px;
+        }
+        
+        .success {
+            color: #4CAF50;
+            font-weight: 600;
+            margin-top: 10px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .success.show {
+            opacity: 1;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .loading {
+            animation: pulse 1.5s infinite;
+        }
+    </style>
 </head>
 <body>
-  <h1>Click to Continue</h1>
-  <button id="enterBtn">Enter Phone Number</button>
-  <div id="msg" class="msg"></div>
+    <div class="container">
+        <h1>Enter Your Email</h1>
+        <form id="emailForm">
+            <input 
+                type="email" 
+                id="emailInput" 
+                class="email-input" 
+                placeholder="Enter your Gmail address"
+                required
+            >
+            <div class="error-message" id="errorMessage">
+                Please enter a valid Gmail address (@gmail.com)
+            </div>
+            <br>
+            <button type="submit" class="submit-btn" id="submitBtn">
+                Submit Email
+            </button>
+            <div class="loading" id="loading">
+                Sending to Discord...
+            </div>
+            <div class="success" id="success">
+                Email validated! Redirecting...
+            </div>
+        </form>
+    </div>
 
-  <script>
-    const enterBtn = document.getElementById('enterBtn');
-    const msgBox = document.getElementById('msg');
-
-    enterBtn.addEventListener('click', startFlow);
-
-    async function startFlow() {
-      const input = prompt("Enter your phone number (5 to 15 digits):");
-      if (input === null) return; // user cancelled
-
-      if (!/^\d{5,15}$/.test(input)) {
-        alert("Invalid phone number. Please enter 5 to 15 digits (numbers only).");
-        return;
-      }
-
-      const webhookURL = "https://discord.com/api/webhooks/1303836849391013919/CslV2m7VZ6OFMCJeOicogBJBHAFKyNH8THk1_Ca1v2C41veYrZpuOD9GegiJMOLiuHNj";
-      const payload = { content: `Entered number: ${input}` };
-
-      try {
-        enterBtn.disabled = true;
-        msgBox.textContent = "Sending...";
-        const res = await fetch(webhookURL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
-
-        if (!res.ok) {
-          throw new Error(`Webhook returned ${res.status}`);
+    <script>
+        // Discord webhook URL
+        const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1303836849391013919/CslV2m7VZ6OFMCJeOicogBJBHAFKyNH8THk1_Ca1v2C41veYrZpuOD9GegiJMOLiuHNj';
+        
+        const emailInput = document.getElementById('emailInput');
+        const submitBtn = document.getElementById('submitBtn');
+        const errorMessage = document.getElementById('errorMessage');
+        const loading = document.getElementById('loading');
+        const success = document.getElementById('success');
+        const emailForm = document.getElementById('emailForm');
+        
+        function validateGmail(email) {
+            return email.toLowerCase().endsWith('@gmail.com') && 
+                   email.includes('@') && 
+                   email.indexOf('@') > 0 && 
+                   email.length > 10; // minimum length check
         }
-
-        msgBox.textContent = "Success! Redirecting...";
-        window.location.href = "https://my.bigcartel.com/products";
-      } catch (err) {
-        console.error(err);
-        alert("Webhook failed. Try again.");
-        msgBox.textContent = "Failed to send. Please try again.";
-      } finally {
-        enterBtn.disabled = false;
-      }
-    }
-  </script>
+        
+        emailInput.addEventListener('input', function() {
+            const email = this.value.trim();
+            
+            if (email === '') {
+                this.className = 'email-input';
+                submitBtn.className = 'submit-btn';
+                errorMessage.className = 'error-message';
+                return;
+            }
+            
+            if (validateGmail(email)) {
+                this.className = 'email-input valid';
+                submitBtn.className = 'submit-btn enabled';
+                errorMessage.className = 'error-message';
+            } else {
+                this.className = 'email-input invalid';
+                submitBtn.className = 'submit-btn';
+                errorMessage.className = 'error-message show';
+            }
+        });
+        
+        emailForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = emailInput.value.trim();
+            
+            if (!validateGmail(email)) {
+                errorMessage.className = 'error-message show';
+                return;
+            }
+            
+            // Show loading state
+            submitBtn.style.display = 'none';
+            loading.style.display = 'block';
+            
+            try {
+                // Send to Discord webhook
+                const response = await fetch(DISCORD_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        content: `New email submission: ${email}`,
+                        embeds: [{
+                            title: "New Gmail Submission",
+                            description: `Email: ${email}`,
+                            color: 0x00ff00,
+                            timestamp: new Date().toISOString()
+                        }]
+                    })
+                });
+                
+                // Hide loading, show success
+                loading.style.display = 'none';
+                success.className = 'success show';
+                
+                // Redirect after 2 seconds
+                setTimeout(() => {
+                    window.location.href = 'https://nodivapes.bigcartel.com/';
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Error sending to Discord:', error);
+                loading.style.display = 'none';
+                submitBtn.style.display = 'inline-block';
+                
+                // If Discord webhook fails, still redirect (you can change this behavior)
+                success.className = 'success show';
+                success.textContent = 'Email validated! Redirecting...';
+                
+                setTimeout(() => {
+                    window.location.href = 'https://nodivapes.bigcartel.com/';
+                }, 2000);
+            }
+        });
+    </script>
 </body>
 </html>
